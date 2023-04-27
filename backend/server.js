@@ -7,6 +7,7 @@ const port = process.env.PORT || 5000;
 const userRoutes = require("./routes/userRoutes");
 dotenv.config();
 connectDB();
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("API is Running");
