@@ -8,7 +8,9 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
+import axios from "axios";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [show, setShow] = useState(false);
@@ -19,6 +21,7 @@ const Signup = () => {
   const [pic, setPic] = useState(null);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  const history = useNavigate();
 
   const handleClick = () => setShow(!show);
   const postDetails = (pics) => {
@@ -63,7 +66,61 @@ const Signup = () => {
       return;
     }
   };
-  const submitHandler = () => {};
+  const submitHandler = async () => {
+    setLoading(true);
+    if (!name || !email || !password || !confirmPassword) {
+      toast({
+        title: "Please Fill all the Fields",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      setLoading(false);
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords Do Not Match",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
+      };
+      const { data } = await axios.post(
+        "/api/user",
+        { name, email, password, pic },
+        config
+      );
+      toast({
+        title: "Registration Successful",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setLoading(false);
+    } catch (err) {
+      toast({
+        title: "Error Occurred!",
+        description: err.response.data.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      setLoading(false);
+    }
+  };
   return (
     <VStack spacing={"5px"} color={"black"}>
       <FormControl id="first-name" isRequired>
